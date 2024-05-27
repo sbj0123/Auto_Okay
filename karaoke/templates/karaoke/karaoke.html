@@ -243,31 +243,38 @@
     </div>
     <div id="statusMessage">Ready to record...</div>
 
-    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
     <script>
         let scrollImage = document.getElementById('scrollImage');
         let statusMessage = document.getElementById('statusMessage');
         let intervalId;
         let maxLeft = -200;
 
-        let recorder;
-        let audioBlob;
+        let mediaRecorder;
+        let audioChunks = [];
         let song = new Audio('/media/MR_file.wav');
 
         async function setupRecorder() {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            recorder = RecordRTC(stream, {
-                type: 'audio',
-                mimeType: 'audio/wav'
-            });
+            const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+            mediaRecorder = new MediaRecorder(stream);
+
+            mediaRecorder.ondataavailable = function (event) {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, {type: 'audio/wav'});
+                const formData = new FormData();
+                formData.append('audioFile', audioBlob, 'recording.wav');
+                await sendAudioToServer(formData);
+                audioChunks = [];
+            };
         }
 
         async function sendAudioToServer(formData) {
             try {
-                const response = await fetch('save_audio/', {
+                const response = await fetch('{% url 'save_audio' %}', {
                     method: 'POST',
                     body: formData,
-                    mode: "cors"
                 });
                 const data = await response.json();
                 console.log('Server response:', data);
@@ -284,8 +291,8 @@
         };
 
         function startRecording() {
-            if (recorder && recorder.state === 'inactive') {
-                recorder.startRecording();
+            if (mediaRecorder && mediaRecorder.state === "inactive") {
+                mediaRecorder.start();
                 statusMessage.textContent = "Recording in progress...";
                 song.play();
             }
@@ -302,28 +309,18 @@
         }
 
         function stopRecording() {
-            if (recorder && recorder.state === 'recording') {
-                recorder.stopRecording(() => {
-                    audioBlob = recorder.getBlob();
-                    let audioURL = URL.createObjectURL(audioBlob);
-                    let audioFileInput = document.getElementById('audioFile');
-                    audioFileInput.value = audioBlob;
-                    statusMessage.textContent = "Recording paused. Press start to resume.";
-                });
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                statusMessage.textContent = "Recording paused. Press start to resume.";
             }
             clearInterval(intervalId);
             song.pause();
         }
 
         function finishRecording() {
-            if (recorder && recorder.state === 'recording') {
-                recorder.stopRecording(() => {
-                    audioBlob = recorder.getBlob();
-                    let audioURL = URL.createObjectURL(audioBlob);
-                    let audioFileInput = document.getElementById('audioFile');
-                    audioFileInput.value = audioBlob;
-                    statusMessage.textContent = "Recording finished. Ready to play.";
-                });
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                statusMessage.textContent = "Recording finished. Ready to play.";
             }
             clearInterval(intervalId);
             scrollImage.style.transition = 'left 0.5s ease-out';
@@ -331,6 +328,8 @@
             song.currentTime = 0;
             song.pause();
             document.getElementById('recordingForm').submit();
+            {#window.location.href = "{% url 'check' %}";#}
+
         }
     </script>
 

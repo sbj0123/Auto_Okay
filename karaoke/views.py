@@ -13,13 +13,14 @@ from pydub import AudioSegment
 
 
 def wav_to_mp3(wave_file_path):
-    if os.path.exists(r'C:\Users\bj\Desktop\pbl1\media\recording.mp3'):
-        os.remove(r'C:\Users\bj\Desktop\pbl1\media\recording.mp3')
+    file_path = os.path.join(settings.MEDIA_ROOT, 'recording.mp3')
+    if os.path.exists(file_path) :
+        os.remove(file_path)
     # FFmpeg 명령 구성
     command = [
         'ffmpeg',
         '-i', wave_file_path,  # 입력 파일
-        r'C:\Users\bj\Desktop\pbl1\media\recording.mp3'  # 출력 파일
+        file_path  # 출력 파일
     ]
 
     # subprocess.run을 사용하여 명령 실행
@@ -60,7 +61,7 @@ def karaoke(request):
         # 업로드된 파일을 받아옵니다.
         file_path = os.path.join(settings.MEDIA_ROOT, 'recording.mp3')
         audio = AudioSegment.from_mp3(file_path)
-        output_path = r'C:\Users\bj\Desktop\pbl1\media\recording.wav'
+        output_path = os.path.join(settings.MEDIA_ROOT, 'recording.wav')
         if os.path.exists(output_path):
             os.remove(output_path)
         audio.export(output_path, format='wav')
