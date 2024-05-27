@@ -160,7 +160,7 @@
 {#            song.currentTime = 0;#}
 {#            song.pause();#}
 {#            document.getElementById('recordingForm').submit();#}
-            {#window.location.href = "{% url 'check' %}";#}
+{#window.location.href = "{% url 'check' %}";#}
 {##}
 {#        }#}
 {#    </script>#}
@@ -240,6 +240,7 @@
                 Recording
             </button>
         </form>
+        <audio controls></audio>
     </div>
     <div id="statusMessage">Ready to record...</div>
 
@@ -252,9 +253,20 @@
         let mediaRecorder;
         let audioChunks = [];
         let song = new Audio('/media/MR_file.wav');
+        const $audio = document.querySelector("audio");
 
-        async function setupRecorder() {
-            const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+
+        function setupRecorder() {
+            const stream = navigator.mediaDevices.getUserMedia({audio: true})
+                .then((mediaStream) => {
+                    // Promise이므로 then으로 받아서 사용(async/await를 사용해도 된다.)
+
+                    // 마이크에서 입력받은 MediaStream으로 오디오 재생
+                    $audio.srcObject = mediaStream;
+                    $audio.onloadedmetadata = (event) => {
+                        $audio.play();
+                    }
+                 })
             mediaRecorder = new MediaRecorder(stream);
 
             mediaRecorder.ondataavailable = function (event) {
