@@ -1,0 +1,273 @@
+{#{% extends 'index.html' %}#}
+{#{% load static %}#}
+{##}
+{#{% block content %}#}
+{##}
+{#      <style>#}
+{#    .container {#}
+{#      width: 90%;#}
+{#      position: relative;#}
+{#      margin-bottom: 20px;#}
+{#    }#}
+{#    .frequencyImage {#}
+{#      width: 100%;#}
+{#      height: 300px;#}
+{#      position: relative;#}
+{#      background-size: cover;#}
+{#      background-repeat: no-repeat;#}
+{#      border: 1px solid #ccc;#}
+{#    }#}
+{#    .redLine {#}
+{#      position: absolute;#}
+{#      top: 0;#}
+{#      bottom: 0;#}
+{#      left: 50%;#}
+{#      width: 2px;#}
+{#      background-color: red;#}
+{#    }#}
+{#    .audio-control {#}
+{#      text-align: center;#}
+{#      margin-top: 5px;#}
+{#    }#}
+{#    h1 {#}
+{#        font-size: 30px; /* 크기 조정 */#}
+{#        color: #333; /* 색상 조정 */#}
+{#        margin-top: 40px; /* 위 여백 조정 */#}
+{#        margin-bottom: 40px; /* 마진 조정 */#}
+{#    }#}
+{#  </style>#}
+{##}
+{#  <div class="text-center" style="margin-top: 20px;">#}
+{#    <h1>&lt;MR_Song & Pitch_Shift_Song&gt;</h1>#}
+{#  </div>#}
+{##}
+{#  <div class="container">#}
+{#    <div id="originalFreq" class="frequencyImage" style="background-image: url({% get_media_prefix %}controls.png);">#}
+{#      <div class="redLine"></div>#}
+{#    </div>#}
+{#    <audio id="originalAudio" src="/media/recording.wav"></audio>#}
+{#    <div class="audio-control">#}
+{#      <button onclick="togglePlay('originalAudio', 'originalFreq')">Toggle Original</button>#}
+{#    </div>#}
+{#  </div>#}
+{##}
+{#  <div class="container">#}
+{#    <div id="shiftedFreq" class="frequencyImage" style="background-image: url({% get_media_prefix %}controls.png);">#}
+{#      <div class="redLine"></div>#}
+{#    </div>#}
+{#    <audio id="shiftedAudio" src="/media/output_shifted.wav"></audio>#}
+{#    <div class="audio-control">#}
+{#      <button onclick="togglePlay('shiftedAudio', 'shiftedFreq')">Toggle Shifted</button>#}
+{#    </div>#}
+{#  <a href="{% url 'download'%}" class="btn btn-clean">다음 페이지</a>#}
+{#  </div>#}
+{##}
+{#  <script>#}
+{#    function togglePlay(audioId, containerId) {#}
+{#      const audio = document.getElementById(audioId);#}
+{#      const container = document.getElementById(containerId);#}
+{#      const redLine = container.querySelector('.redLine');#}
+{##}
+{#      if (audio.paused) {#}
+{#        audio.play();#}
+{#        animateLine(redLine, audio);#}
+{#      } else {#}
+{#        audio.pause();#}
+{#        cancelAnimationFrame(redLine.animationFrameId);#}
+{#      }#}
+{#    }#}
+{##}
+{#    function animateLine(line, audio) {#}
+{#      const duration = audio.duration;#}
+{#      const update = () => {#}
+{#        const progress = (audio.currentTime / duration) * 100;#}
+{#        line.style.left = progress + '%';#}
+{#        line.animationFrameId = requestAnimationFrame(update);#}
+{#      };#}
+{#      update();#}
+{#    }#}
+{##}
+{#    // Drag and drop functionality for the red line#}
+{#    document.querySelectorAll('.redLine').forEach(line => {#}
+{#      line.onmousedown = function(event) {#}
+{#        event.preventDefault();#}
+{#        const container = line.parentElement;#}
+{#        const audioId = container.nextElementSibling.id;#}
+{#        const audio = document.getElementById(audioId);#}
+{#        const duration = audio.duration;#}
+{#        const containerRect = container.getBoundingClientRect();#}
+{##}
+{#        document.onmousemove = function(event) {#}
+{#          let newLeft = event.clientX - containerRect.left;#}
+{#          if (newLeft < 0) { newLeft = 0; }#}
+{#          let rightEdge = container.offsetWidth;#}
+{#          if (newLeft > rightEdge) { newLeft = rightEdge; }#}
+{#          line.style.left = (newLeft / rightEdge) * 100 + '%';#}
+{#          audio.currentTime = (newLeft / rightEdge) * duration;#}
+{#        };#}
+{##}
+{#        document.onmouseup = function() {#}
+{#          document.onmousemove = document.onmouseup = null;#}
+{#        };#}
+{#      };#}
+{#    });#}
+{#  </script>#}
+{##}
+{#{% endblock %}#}
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+    <style>
+
+        .audio-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 모든 컨텐츠를 중앙 정렬 */
+            justify-content: space-around; /* 적절한 간격으로 정렬 */
+            padding: 20px 0; /* 상단과 하단에 간격 */
+        }
+
+        .audio-container {
+            width: 100%; /* 적절한 너비 설정 */
+            margin: 20px 0; /* 위 아래 마진으로 컨테이너 간 간격 추가 */
+            background: #f8f8f8; /* 배경색 추가 */
+            padding: 20px; /* 내부 패딩 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+            border-radius: 10px; /* 경계선 둥글게 */
+        }
+
+        .frequency-container {
+            position: relative;
+            height: 200px;
+            border: 2px solid black; /* 테두리 추가 */
+            overflow: hidden; /* 컨테이너 밖의 내용을 숨김 */
+        }
+
+        .red-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: red;
+        }
+
+        .button-container {
+            text-align: center; /* 버튼을 가운데 정렬 */
+            margin-top: 10px; /* 버튼 위 간격 */
+        }
+
+        .playback-time {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 2px 5px;
+            font-size: 12px;
+        }
+
+
+        #OriginalContainer {
+            background-image: url({% get_media_prefix %}controls.png); /* 피치 시프트 음원의 시각화 이미지 */
+            background-size: cover;
+            background-position: center;
+        }
+
+        #ShiftedContainer {
+            background-image: url({% get_media_prefix %}controls.png); /* 원본 + 피치 시프트 음원의 시각화 이미지 */
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+
+    <div class="container">
+        <div class="audio-container">
+            <h2>Original Voice</h2>
+            <div id="OriginalContainer" class="frequency-container">
+                <div id="redLineShift" class="red-line"></div>
+                <span class="playback-time" id="pitchShiftTime">00:00</span>
+            </div>
+            <audio id="OriginalAudio" src="/media/MR_file.wav"></audio>
+            <div class="button-container">
+                <button onclick="togglePlay('OriginalAudio', 'OriginalContainer')">Toggle Original</button>
+            </div>
+        </div>
+        <div class="audio-container">
+            <h2>Pitch Shift Voice</h2>
+            <div id="ShiftedContainer" class="frequency-container">
+                <div id="redLineOriginal" class="red-line"></div>
+                <span class="playback-time" id="originalShiftTime">00:00</span>
+            </div>
+            <audio id="ShiftedAudio" src="/media/MR_file.wav"></audio>
+            <div class="button-container">
+                <button onclick="togglePlay('ShiftedAudio', 'ShiftedContainer')">Toggle Shifted
+                </button>
+            </div>
+            <a href="{% url 'download'%}" class="btn btn-clean">다음 페이지</a>
+        </div>
+    </div>
+
+    <script>
+        // Script for handling red line, audio seek, and play/pause
+        document.querySelectorAll('.frequency-container').forEach((container, index) => {
+            container.addEventListener('click', function (event) {
+                const rect = this.getBoundingClientRect();
+                const percent = (event.clientX - rect.left) / this.offsetWidth;
+                const audio = document.querySelectorAll('audio')[index];
+                audio.currentTime = percent * audio.duration;
+                updateRedLine(this, percent * 100);
+            });
+            container.addEventListener('mousedown', function () {
+                this.classList.add('dragging');
+            });
+        });
+
+        document.addEventListener('mousemove', function (event) {
+            const draggingContainer = document.querySelector('.frequency-container.dragging');
+            if (draggingContainer) {
+                const rect = draggingContainer.getBoundingClientRect();
+                const percent = (event.clientX - rect.left) / draggingContainer.offsetWidth;
+                const audio = document.querySelector(`#${draggingContainer.id.replace('Container', 'Audio')}`);
+                if (audio) {
+                    audio.currentTime = percent * audio.duration;
+                    updateRedLine(draggingContainer, percent * 100);
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', function () {
+            const draggingContainer = document.querySelector('.frequency-container.dragging');
+            if (draggingContainer) {
+                draggingContainer.classList.remove('dragging');
+            }
+        });
+
+        function updateRedLine(container, percent) {
+            const redLine = container.querySelector('.red-line');
+            const timeDisplay = container.querySelector('.playback-time');
+            const audio = document.querySelector(`#${container.id.replace('Container', 'Audio')}`);
+            redLine.style.left = percent + '%';
+            if (audio) {
+                const minutes = Math.floor(audio.currentTime / 60).toString().padStart(2, '0');
+                const seconds = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
+                timeDisplay.textContent = `${minutes}:${seconds}`;
+            }
+        }
+
+        function togglePlay(audioId, containerId) {
+            const audio = document.getElementById(audioId);
+            const container = document.getElementById(containerId);
+            if (audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+            audio.addEventListener('timeupdate', () => {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                updateRedLine(container, percent);
+            });
+        }
+
+    </script>
+
+{% endblock %}

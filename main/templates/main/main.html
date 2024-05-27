@@ -1,0 +1,40 @@
+{% extends 'index.html' %}
+{% load static %}
+
+
+{% block content %}
+    <div class="frame">
+        <form style="height: 70vh;align-content: center; text-align: center;
+            " method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="center">
+                <div class="title">
+                    <h1 style="font-size: 16px;font-weight: 300;color: #666;">Click to upload</h1>
+                </div>
+                <div>
+                    <input id="upload-btn1" style="display: none" type="file" name="audio_file1" required=""
+                           onchange="displayFileName(this, 'label1')">
+                    <img id="upload-icon" src="http://100dayscss.com/codepen/upload.svg" class="upload-icon"/>
+                    <label id="label1" style="display: flex; font-size: 16px;font-weight: 300;color:#666; justify-content: center;" for="upload-btn1">MR
+                        파일: </label>
+                </div>
+            </div>
+            <a href="{% url 'karaoke' %}" class="btn btn-clean" type="submit">시작하기</a>
+        </form>
+    </div>
+    <script>
+        function displayFileName(input, labelId) {
+            var label = document.getElementById(labelId); // 레이블 선택
+            var fileName = input.files[0].name; // 선택된 파일의 이름 가져오기
+            var displayedFileName1 = (fileName.length > 5) ? fileName.substring(0, 5) + '...' : fileName;
+            var displayedFileName = label.textContent + displayedFileName1// 파일 이름 조작
+            label.textContent = displayedFileName; // 레이블에 파일 이름 설정
+        }
+
+        document.getElementById('upload-icon').addEventListener('click', function () {
+            document.getElementById('upload-btn1').click();
+        });
+    </script>
+
+
+{% endblock %}

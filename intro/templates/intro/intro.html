@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- Hero
+    ================================================== -->
+    <section>
+        <div id="hero-section" class="landing-hero" data-stellar-background-ratio="0">
+            <div class="hero-content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-8 col-sm-offset-2">
+
+                            <div class="hero-text">
+                                <div class="herolider">
+                                    <ul class="caption-slides">
+
+                                        <li class="caption">
+                                            <h1>Auto Okay</h1>
+                                            <div class="div-line"></div>
+                                            <p class="hero">Auto Pich & Sound range visualization</p>
+                                        </li>
+
+                                        <li class="caption">
+                                            <h1>나의 노래를 시각적으로</h1>
+                                            <div class="div-line"></div>
+                                            <p class="hero">My song visually</p>
+                                        </li>
+
+                                        <li class="caption">
+                                            <h1>나의 피치를 자동 보정</h1>
+                                            <div class="div-line"></div>
+                                            <p class="hero">Automatically correct my pitch</p>
+                                        </li>
+
+                                    </ul>
+                                </div> <!-- end herolider -->
+                            </div> <!-- end hero-text -->
+
+                            <div class="hero-btn">
+                                <a href="main" class="btn btn-clean">Start</a> <!-- Start 버튼 추가 -->
+                                <a href="#landing-offer" class="btn btn-clean">Read more</a>
+                            </div> <!-- end hero-btn -->
+
+                        </div> <!-- end col-md-6 -->
+                    </div> <!-- end row -->
+                </div> <!-- End container -->
+            </div> <!-- End hero-content -->
+        </div> <!-- End hero-section -->
+    </section>
+
+    <section>
+        <div id="landing-offer" class="pad-sec">
+            <div class="container">
+
+                <div class="title-section big-title-sec animated out" data-animation="fadeInUp" data-delay="0">
+                    <div class="row">
+                        <div class="col-sm-8 col-sm-offset-2">
+                            <h2 class="big-title">Introduce our Auto Okay</h2>
+                            <h1 class="big-subtitle">음악에 관심이 있고 배움을 원하는 분들에게<br>저희 Auto Okay를 추천합니다</h1>
+                            <hr>
+                            <p class="about-text">1. 내가 부른 노래를 원곡과 얼마나 다른지 그래프를 통해서 한 눈에 확인할 수 있습니다.<br>2. 내가 만약 가수와 똑같은
+                                음역대로 부른다면 어떤 느낌일지 들어볼 수 있습니다.<br>3. 여러분들의 노래 실력 향상을 위해 도움을 드리겠습니다.</p>
+                        </div>
+                    </div> <!-- End row -->
+                </div> <!-- end title-section -->
+
+                <div class="offer-boxes">
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="offer-post text-center animated out" data-animation="fadeInLeft" data-delay="0">
+                                <div class="offer-icon">
+                                    <span class="icon-desktop"></span>
+                                </div>
+                                <h4>Visualization</h4>
+                                <p>노래를 부를 때 미세한 음역대의 차이는 크게 느끼지 못할 것입니다. 그래서 저희는 이를 눈으로 확인할 수 있는 그래프를 통해서 여러분과 가수의 차이를
+                                    보여드릴 것입니다.</p>
+                            </div> <!-- End offer-post -->
+                        </div> <!-- End col-sm-4 -->
+
+                        <div class="col-sm-4">
+                            <div class="offer-post text-center animated out" data-animation="fadeInUp" data-delay="0">
+                                <div class="offer-icon">
+                                    <span class="icon-piechart"></span>
+                                </div>
+                                <h4>Auto Pitch</h4>
+                                <p>여러분들의 음역대를 자동을 파악하여서 가수의 음역대에 자동으로 맞춰드립니다. 현재까지 사람이 일일히 고쳐나갔지만 저희 Auto Okay는 자동으로 피치를
+                                    조정해줍니다. 이를 통해 자신의 향상된 노래실력을 간접 경험할 수 있습니다.</p>
+                            </div> <!-- End offer-post -->
+                        </div> <!-- End col-sm-4 -->
+
+                        <div class="col-sm-4">
+                            <div class="offer-post text-center animated out" data-animation="fadeInRight"
+                                 data-delay="0">
+                                <div class="offer-icon">
+                                    <span class="icon-lifesaver"></span>
+                                </div>
+                                <h4>Improved singing skills</h4>
+                                <p>Visualization & Auto Pitch 외에도 여러분에게 다양한 기능을 제공하여서 개인적으로 음악 학원을 다니지 않고도 노래 실력 향상에 많은
+                                    도움을 제공할 예정입니다.</p>
+                            </div> <!-- End offer-post -->
+                        </div> <!-- End col-sm-4 -->
+
+                    </div> <!-- End row -->
+
+                </div> <!-- End offer-boxes -->
+            </div> <!-- End container -->
+        </div> <!-- End landing-offer-section -->
+    </section>
+
+    {#    <section>#}
+    {#        <div class="sep-section"></div>#}
+    {#    </section>#}
+
+    <!-- Features services
+    ================================================== -->
+    {#    <section>#}
+    {#        <div id="features-section" class="pad-sec">#}
+    {#            <div class="container">#}
+    {#                <div class="title-section text-center animated out" data-animation="fadeInUp" data-delay="0">#}
+    {#                    <div class="row">#}
+    {#                        <div class="col-sm-8 col-sm-offset-2">#}
+    {#                            <h2>What we do?</h2>#}
+    {#                            <hr>#}
+    {#                            <p>Seamlessly restore client-focused potentialities rather than functional strategic#}
+    {#                                theme areas.</p>#}
+    {#                        </div> <!-- edn col-sm-8 -->#}
+    {#                    </div> <!-- End row -->#}
+    {#                </div> <!-- end title-section -->#}
+    {#                <div class="row">#}
+    {#                    <div class="col-md-3 without-padding">#}
+    {#                        <div class="left-features-services">#}
+    {#                            <ul class="features-list">#}
+    {#                                <!-- feature -->#}
+    {#                                <li>#}
+    {#                                    <div class="left-features-box animated out" data-animation="fadeInLeft"#}
+    {#                                         data-delay="0">#}
+    {#                                        <span class="iconbox"><i class="icon-mobile"></i></span>#}
+    {#                                        <div class="features-box-content">#}
+    {#                                            <h6>Mobile App</h6>#}
+    {#                                            <p>Mauris eros tortor, tristique cursus porttitor et, luctus sed#}
+    {#                                                urna.</p>#}
+    {#                                        </div> <!-- end features-box-content -->#}
+    {#                                    </div> <!-- end left-features-box -->#}
+    {#                                </li>#}
+    {#                                <!-- feature -->#}
+    {#                                <li>#}
+    {#                                    <div class="left-features-box animated out" data-animation="fadeInLeft"#}
+    {#                                         data-delay="0">#}
+    {#                                        <span class="iconbox"><i class="icon-browser"></i></span>#}
+    {#                                        <div class="features-box-content">#}
+    {#                                            <h6>Web design</h6>#}
+    {#                                            <p>Mauris eros tortor, tristique cursus porttitor et, luctus sed#}
+    {#                                                urna.</p>#}
+    {#                                        </div> <!-- end features-box-content -->#}
+    {#                                    </div> <!-- end left-features-box -->#}
+    {#                                </li>#}
+    {#                                <!-- feature -->#}
+    {#                                <li>#}
+    {#                                    <div class="left-features-box animated out" data-animation="fadeInLeft"#}
+    {#                                         data-delay="0">#}
+    {#                                        <span class="iconbox"><i class="icon-strategy"></i></span>#}
+    {#                                        <div class="features-box-content">#}
+    {#                                            <h6>Branding</h6>#}
+    {#                                            <p>Mauris eros tortor, tristique cursus porttitor et, luctus sed#}
+    {#                                                urna.</p>#}
+    {#                                        </div> <!-- end features-box-content -->#}
+    {#                                    </div> <!-- end left-features-box -->#}
+    {#                                </li>#}
+    {#                                <!-- feature -->#}
+    {#                                <li>#}
+    {#                                    <div class="left-features-box animated out" data-animation="fadeInLeft"#}
+    {#                                         data-delay="0">#}
+    {#                                        <span class="iconbox"><i class="icon-hotairballoon "></i></span>#}
+    {#                                        <div class="features-box-content">#}
+    {#                                            <h6>Logo design</h6>#}
+    {#                                            <p>Mauris eros tortor, tristique cursus porttitor et, luctus sed#}
+    {#                                                urna.</p>#}
+    {#                                        </div> <!-- end features-box-content -->#}
+    {#                                    </div> <!-- end left-features-box -->#}
+    {#                                </li>#}
+    {#                                <!-- feature -->#}
+    {#                                <li>#}
+    {#                                    <div class="left-features-box animated out" data-animation="fadeInLeft"#}
+    {#                                         data-delay="0">#}
+    {#                                        <span class="iconbox"><i class="icon-lightbulb"></i></span>#}
+    {#                                        <div class="features-box-content">#}
+    {#                                            <h6>Illustrations</h6>#}
+    {#                                            <p>Mauris eros tortor, tristique cursus porttitor et, luctus sed#}
+    {#                                                urna.</p>#}
+    {#                                        </div> <!-- end features-box-content -->#}
+    {#                                    </div> <!-- end left-features-box -->#}
+    {#                                </li>#}
+    {#                            </ul> <!-- end features-list -->#}
+    {#                        </div> <!-- end left-features-service -->#}
+    {#                    </div><!--  end col-md-3 -->#}
+    {##}
+    {#                    <div class="col-md-6">#}
+    {#                        <div class="features-image animated out" data-animation="fadeInUp" data-delay="0">#}
+    {#                            <img src="/static/images/temp/woman.jpg" alt="">#}
+    {#                        </div> <!-- end features-image -->#}
+    {#                    </div> <!-- end col-md-6 -->#}
+    {##}
+    {#                    <div class="col-md-3 without-padding">#}
+    {#                        <div class="right-features-services">#}
+    {#                            <ul class="features-list">#}
+    {#                                <!-- feature -->#}
+    {#                                <li>#}
+    {#                                    <div class="right-features-box animated out" data-animation="fadeInRight"#}
+    {#                                         data-delay="0">#}
+    {#                                        <span class="iconbox"><i class="icon-tools-2"></i></span>#}
+    {#                                        <div class="features-box-content">#}
+    {#                                            <h6>Easy Customization</h6>#}
+    {#                                            <p>Mauris eros tortor, tristique cursus porttitor et, luctus sed#}
+    {#                                                urna.</p>#}
+    {#                                        </div>#}
+    {#                                    </div>#}
+    {#                                </li>#}
+    {#                                <!-- feature -->#}
+    {#                                <li>#}
+    {#                                    <div class="right-features-box animated out" data-animation="fadeInRight"#}
+    {#                                         data-delay="0">#}
+    {#                                        <span class="iconbox"><i class="icon-video"></i></span>#}
+    {#                                        <div class="features-box-content">#}
+    {#                                            <h6>Video</h6>#}
+    {#                                            <p>Mauris eros tortor, tristique cursus porttitor et, luctus sed#}
+    {#                                                urna</p>#}
+    {#                                        </div>#}
+    {#                                    </div>#}
+    {#                                </li>#}
+    {#                                <!-- feature -->#}
+    {#                                <li>#}
+    {#                                    <div class="right-features-box animated out" data-animation="fadeInRight"#}
+    {#                                         data-delay="0">#}
+    {#                                        <span class="iconbox"><i class="icon-camera"></i></span>#}
+    {#                                        <div class="features-box-content">#}
+    {#                                            <h6>Photography</h6>#}
+    {#                                            <p>Mauris eros tortor, tristique cursus porttitor et, luctus sed#}
+    {#                                                urna.</p>#}
+    {#                                        </div>#}
+    {#                                    </div>#}
+    {#                                </li>#}
+    {#                                <!-- feature -->#}
+    {#                                <li>#}
+    {#                                    <div class="right-features-box animated out" data-animation="fadeInRight"#}
+    {#                                         data-delay="0">#}
+    {#                                        <span class="iconbox"><i class="icon-presentation"></i></span>#}
+    {#                                        <div class="features-box-content">#}
+    {#                                            <h6>Marketing</h6>#}
+    {#                                            <p>Mauris eros tortor, tristique cursus porttitor et, luctus sed#}
+    {#                                                urna.</p>#}
+    {#                                        </div>#}
+    {#                                    </div>#}
+    {#                                </li>#}
+    {#                                <!-- feature -->#}
+    {#                                <li>#}
+    {#                                    <div class="right-features-box animated out" data-animation="fadeInRight"#}
+    {#                                         data-delay="0">#}
+    {#                                        <span class="iconbox"><i class="fa fa-life-ring"></i></span>#}
+    {#                                        <div class="features-box-content">#}
+    {#                                            <h6>Support</h6>#}
+    {#                                            <p>Mauris eros tortor, tristique cursus porttitor et, luctus sed#}
+    {#                                                urna.</p>#}
+    {#                                        </div>#}
+    {#                                    </div>#}
+    {#                                </li>#}
+    {#                            </ul> <!-- end features-list -->#}
+    {#                        </div>#}
+    {#                    </div> <!-- end col-md-3 -->#}
+    {##}
+    {#                </div> <!-- end row -->#}
+    {#            </div> <!-- end container -->#}
+    {#        </div>#}
+    {#    </section>#}
+    <!-- End features-section -->
+
+    <!-- Video section
+    ================================================== -->
+        <section>
+            <div id="video-section" data-stellar-background-ratio="0">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6 col-sm-offset-3">
+                            <div class="video-section-content text-center">
+                                <a href="http://vimeo.com/channels/staffpicks/116829150" class="video-pop-up"><i
+                                        class="fa fa-play"></i></a>
+                                <div class="video-head">Introducing Video</div>
+                                <div class="video-sub-heading">Check out our video presentation</div>
+                            </div>
+                        </div> <!-- end col-sm-6 -->
+                    </div> <!-- end row -->
+                </div> <!-- end container -->
+            </div>
+        </section>
+    <!-- End Video section -->
+{% endblock %}
