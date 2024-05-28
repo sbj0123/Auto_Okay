@@ -81,6 +81,8 @@ def karaoke(request):
         # file_path = os.path.join(settings.MEDIA_ROOT, 'recording.mp3')
         # audio = AudioSegment.from_mp3(file_path)
         file_path = os.path.join(settings.MEDIA_ROOT, 'recording.wav')
+        # audio = AudioSegment.from_file(file_path)
+        # audio.export(file_path, format='wav')
         # if os.path.exists(output_path):
         #     os.remove(output_path)
         # audio.export(output_path, format='wav')
