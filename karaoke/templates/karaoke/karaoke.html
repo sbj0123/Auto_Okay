@@ -237,7 +237,7 @@
                 Recording
             </button>
         </form>
-        <audio controls></audio>
+        <audio style="visibility: hidden" controls></audio>
     </div>
     <div id="statusMessage">Ready to record...</div>
 
@@ -256,9 +256,9 @@
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     audio: {
-                        echoCancellation: true,
-                        noiseSuppression: true,
-                        autoGainControl: true
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
                     }
                 });
 
@@ -276,13 +276,13 @@
 
                 mediaRecorder.onstop = async () => {
                     const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const arrayBuffer = await audioBlob.arrayBuffer();
-                    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                    const wavData = await encodeWAV(audioBuffer);
-                    const wavBlob = new Blob([wavData], { type: 'audio/wav' });
+                    {#const arrayBuffer = await audioBlob.arrayBuffer();#}
+                    {#const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);#}
+                    {#const wavData = await encodeWAV(audioBuffer);#}
+                    {#const wavBlob = new Blob([wavData], { type: 'audio/wav' });#}
 
                     const formData = new FormData();
-                    formData.append('audioFile', wavBlob, 'recording.wav');
+                    formData.append('audioFile', audioBlob, 'recording.wav');
                     await sendAudioToServer(formData);
                     audioChunks = [];
                     statusMessage.textContent = "저장 완료";
