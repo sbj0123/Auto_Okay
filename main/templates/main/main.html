@@ -27,17 +27,23 @@
         </form>
     </div>
     <script>
-        function displayFileName(input, labelId) {
-            var label = document.getElementById(labelId); // 레이블 선택
-            var fileName = input.files[0].name; // 선택된 파일의 이름 가져오기
-            var displayedFileName1 = (fileName.length > 5) ? fileName.substring(0, 5) + '...' : fileName;
-            var displayedFileName = label.textContent + displayedFileName1// 파일 이름 조작
-            label.textContent = displayedFileName; // 레이블에 파일 이름 설정
-        }
 
-        document.getElementById('upload-icon').addEventListener('click', function () {
-            document.getElementById('upload-btn1').click();
-        });
+
+function displayFileName(input, labelId) {
+    var label = document.getElementById(labelId); // 레이블 선택
+    if (input.files.length > 0) {
+        var fileName = input.files[0].name; // 선택된 파일의 이름 가져오기
+        var displayedFileName = (fileName.length > 10) ? fileName.substring(0, 10) + '...' : fileName;
+        label.textContent = displayedFileName; // 레이블에 새로운 파일 이름 설정
+    } else {
+        label.textContent = "MR 파일: "; // 파일이 선택되지 않았다면 초기 텍스트로 설정
+    }
+}
+
+document.getElementById('upload-icon').addEventListener('click', function () {
+    document.getElementById('upload-btn1').click();
+});
+
     </script>
 
     {#<body>#}
