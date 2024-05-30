@@ -179,7 +179,7 @@
             background-position: center;
         }
     </style>
-
+<div class="landing-hero3">
     <div class="container">
         <div class="audio-container">
             <h2>Original Voice</h2>
@@ -187,7 +187,7 @@
                 <div id="redLineShift" class="red-line"></div>
                 <span class="playback-time" id="pitchShiftTime">00:00</span>
             </div>
-            <audio id="OriginalAudio" src="/media/MR_file.wav"></audio>
+            <audio id="OriginalAudio" src="/media/recording.wav"></audio>
             <div class="button-container">
                 <button onclick="togglePlay('OriginalAudio', 'OriginalContainer')">Toggle Original</button>
             </div>
@@ -198,7 +198,7 @@
                 <div id="redLineOriginal" class="red-line"></div>
                 <span class="playback-time" id="originalShiftTime">00:00</span>
             </div>
-            <audio id="ShiftedAudio" src="/media/MR_file.wav"></audio>
+            <audio id="ShiftedAudio" src="/media/output_shifted.wav"></audio>
             <div class="button-container">
                 <button onclick="togglePlay('ShiftedAudio', 'ShiftedContainer')">Toggle Shifted
                 </button>
@@ -206,6 +206,7 @@
             <a href="{% url 'download'%}" class="btn btn-clean">다음 페이지</a>
         </div>
     </div>
+</div>
 
     <script>
         // Script for handling red line, audio seek, and play/pause
