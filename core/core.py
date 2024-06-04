@@ -102,10 +102,32 @@ class AutoOk:
         self.url_vocal = url
         return True
 
-    def get_bgm_spectrogram(self):
-        snd = parselmouth.Sound(self.url_bgm)
-        spectrogram = snd.to_spectrogram()
-        return spectrogram
+    def get_waveform(self, case):
+
+        #case에 따라 waveform 출력값 변경
+        if case == 'bgm':
+            y, sr = librosa.load(self.url_bgm)
+            self.image_path = 'bgm_image.png'
+        if case == 'vocal':
+            y, sr = librosa.load(self.url_vocal)
+            self.image_path = 'vocal_image.png'
+
+        # 음성 파일의 길이 계산 (초 단위)
+        duration = librosa.get_duration(y=y, sr=sr)
+        # 세로 길이를 고정하고, 가로 길이는 음성 파일의 길이에 비례하도록 설정
+        fixed_height = 6  # 세로 길이 (inches)
+        width_per_second = 1  # 초당 가로 길이 (inches)
+        fig_width = width_per_second * duration
+
+        plt.figure(figsize=(fig_width, fixed_height))
+        librosa.display.waveshow(y, sr=sr)
+        plt.axis("off")
+        plt.xlim(0, duration)
+
+        # 이미지 파일로 저장
+        plt.savefig(self.image_path, bbox_inches='tight', pad_inches=0)
+
+        return True
 
 
     def analyze(self):
@@ -182,7 +204,8 @@ class AutoOk:
         return self.list_shifted_vocal
 
 
-    def get_fixed_wav(self):
+    def get_shifted_part_wav(self, start, end):
+        self.snd
         return True
 
     def final_song(self):
