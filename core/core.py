@@ -119,7 +119,7 @@ class AutoOk:
         width_per_second = 1  # 초당 가로 길이 (inches)
         fig_width = width_per_second * duration
 
-        plt.figure(figsize=(fig_width, fixed_height))
+        plt.figure(figsize=(fig_width, fixed_height), frameon=False)
         librosa.display.waveshow(y, sr=sr)
         plt.axis("off")
         plt.xlim(0, duration)
