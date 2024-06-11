@@ -109,9 +109,6 @@ class AutoOk:
         return True
 
     def get_waveform(self, case):
-<<<<<<< HEAD
-=======
-
         #case에 따라 waveform 출력값 변경
         if case == 'bgm':
             y, sr = librosa.load(self.url_bgm)
@@ -136,8 +133,6 @@ class AutoOk:
         plt.savefig(self.image_path, bbox_inches='tight', pad_inches=0)
 
         return True
->>>>>>> aa51590b2158876b7a2a3756310bbf0d26412b77
-
         # case에 따라 waveform 출력값 변경
         if case == 'bgm':
             y, sr = librosa.load(self.url_bgm)
@@ -164,35 +159,35 @@ class AutoOk:
 
         return True
 
-    # def analyze(self):
-    #     snd = parselmouth.Sound(self.url_bgm)
-    #     chords = autochord.recognize(self.url_bgm, lab_fn='chords.lab')
-    #     pitch = snd.to_pitch()
-    #     pitch_values = pitch.selected_array['frequency']
-    #
-    #     for i in range(len(pitch_values)):
-    #         # pitch_values[i] == 0: continue
-    #         time = i / 100
-    #         list_chord = []
-    #         octave = 0
-    #         for oct in range(8):
-    #             if pitch_values[i] * 10 > self.octaves[oct]:
-    #                 octave = oct
-    #
-    #         for chord in chords:
-    #             if chord[0] < time and time < chord[1]:
-    #                 list_chord = self.dict_scale[chord[2]]
-    #                 break
-    #
-    #         dict_copyed_note_to_key = self.dict_note_to_key.copy()
-    #         for k, v in dict_copyed_note_to_key.items():
-    #             if not k in list_chord:
-    #                 dict_copyed_note_to_key[k] = 0
-    #             else:
-    #                 dict_copyed_note_to_key[k] *= 2 ** octave
-    #
-    #         self.list_pitch_diff.append([self.nearnest(pitch_values[i] * 10, dict_copyed_note_to_key), octave, pitch_values[i]])
-    #     return True
+    def analyze(self):
+        snd = parselmouth.Sound(self.url_bgm)
+        chords = autochord.recognize(self.url_bgm, lab_fn='chords.lab')
+        pitch = snd.to_pitch()
+        pitch_values = pitch.selected_array['frequency']
+
+        for i in range(len(pitch_values)):
+            # pitch_values[i] == 0: continue
+            time = i / 100
+            list_chord = []
+            octave = 0
+            for oct in range(8):
+                if pitch_values[i] * 10 > self.octaves[oct]:
+                    octave = oct
+
+            for chord in chords:
+                if chord[0] < time and time < chord[1]:
+                    list_chord = self.dict_scale[chord[2]]
+                    break
+
+            dict_copyed_note_to_key = self.dict_note_to_key.copy()
+            for k, v in dict_copyed_note_to_key.items():
+                if not k in list_chord:
+                    dict_copyed_note_to_key[k] = 0
+                else:
+                    dict_copyed_note_to_key[k] *= 2 ** octave
+
+            self.list_pitch_diff.append([self.nearnest(pitch_values[i] * 10, dict_copyed_note_to_key), octave, pitch_values[i]])
+        return True
 
 
     def get_diff_section(self):
