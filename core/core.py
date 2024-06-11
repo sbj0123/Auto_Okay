@@ -110,8 +110,6 @@ class AutoOk:
         return True
 
     def get_waveform(self, case):
-<<<<<<< HEAD
-=======
 
         #case에 따라 waveform 출력값 변경
         if case == 'bgm':
@@ -137,7 +135,6 @@ class AutoOk:
         plt.savefig(self.image_path, bbox_inches='tight', pad_inches=0)
 
         return True
->>>>>>> aa51590b2158876b7a2a3756310bbf0d26412b77
 
         # case에 따라 waveform 출력값 변경
         if case == 'bgm':
