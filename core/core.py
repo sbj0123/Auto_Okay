@@ -22,6 +22,7 @@ import librosa
 # import autochord
 import matplotlib.pyplot as plt
 import parselmouth
+from rnnoise_wrapper import RNNoise
 import soundfile
 
 def nearnest(value, dict_in):
@@ -109,6 +110,7 @@ class AutoOk:
         return True
 
     def get_waveform(self, case):
+
         #case에 따라 waveform 출력값 변경
         if case == 'bgm':
             y, sr = librosa.load(self.url_bgm)
@@ -133,6 +135,7 @@ class AutoOk:
         plt.savefig(self.image_path, bbox_inches='tight', pad_inches=0)
 
         return True
+
         # case에 따라 waveform 출력값 변경
         if case == 'bgm':
             y, sr = librosa.load(self.url_bgm)
@@ -195,6 +198,7 @@ class AutoOk:
 
 
     def get_shifted_wav(self):
+        denoiser = RNNoise()
         list_diff_by_section = []
         last_oct, last_key = 0, ''
         int_diff_sum = 0
@@ -229,7 +233,8 @@ class AutoOk:
             if not d[2] == 0.0:
                 temp = librosa.effects.pitch_shift(y=temp, sr=sr, n_steps=d[2] / d[3] * 12)
             self.list_shifted_vocal.extend(temp)
-
+        self.list_shifted_vocal = denoiser.filter(self.list_shifted_vocal)
+        
         return self.list_shifted_vocal
 
 
