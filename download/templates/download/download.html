@@ -52,18 +52,18 @@
 
 
         #pitchShiftContainer {
-            background-image: url({% get_media_prefix %}controls.png); /* 피치 시프트 음원의 시각화 이미지 */
+            background-image: url({% get_media_prefix %}MR_file.wavvocal_image.png); /* 피치 시프트 음원의 시각화 이미지 */
             background-size: cover;
             background-position: center;
         }
 
         #originalShiftContainer {
-            background-image: url({% get_media_prefix %}controls.png); /* 원본 + 피치 시프트 음원의 시각화 이미지 */
+            background-image: url({% get_media_prefix %}MR_file.wavbgm_image.png); /* 원본 + 피치 시프트 음원의 시각화 이미지 */
             background-size: cover;
             background-position: center;
         }
     </style>
-
+<div class="landing-hero">
     <div class="container">
         <div class="audio-container">
             <h2>Pitch Shift Voice</h2>
@@ -71,10 +71,10 @@
                 <div id="redLineShift" class="red-line"></div>
                 <span class="playback-time" id="pitchShiftTime">00:00</span>
             </div>
-            <audio id="pitchShiftAudio" src="/media/노래방에서-mr.mp3"></audio>
+            <audio id="pitchShiftAudio" src={{ shift }}></audio>
             <div class="button-container">
                 <button onclick="togglePlay('pitchShiftAudio', 'pitchShiftContainer')">Play/Pause Pitch Shift</button>
-                <button onclick="downloadFile('노래방에서-mr.mp3')">Download Pitch Shift</button>
+                <button onclick="downloadFile('Pitch_Shifted.mp3')">Download Pitch Shift</button>
             </div>
         </div>
         <div class="audio-container">
@@ -91,6 +91,7 @@
             </div>
         </div>
     </div>
+</div>
 
     <script>
         // Script for handling red line, audio seek, and play/pause

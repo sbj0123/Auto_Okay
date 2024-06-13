@@ -24,8 +24,7 @@ SECRET_KEY = 'django-insecure-!45)(gco_6_2k!-64jmi#mf@bevm0)v$4+b_=ng20p^iu(98@d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.6',
-                 '127.0.0.1'
+ALLOWED_HOSTS = ['127.0.0.1','172.17.163.19'
                  ]
 
 # Application definition
@@ -139,6 +138,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 기본값
+SESSION_COOKIE_AGE = 1209600  # 2주 (세션 만료 시간, 초 단위)
+SESSION_SAVE_EVERY_REQUEST = True  # 매 요청마다 세션 저장
+
 
 # SECURE_SSL_REDIRECT = True  # HTTP를 HTTPS로 리다이렉트
 # SECURE_HSTS_SECONDS = 31536000  # HSTS 설정

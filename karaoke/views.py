@@ -13,6 +13,8 @@ from pydub import AudioSegment
 
 from karaoke.forms import MyModelForm
 
+from core.core import get_auto_ok_instance, save_auto_ok_instance
+from django.conf import settings
 
 def wav_to_mp3(wave_file_path):
     file_path = os.path.join(settings.MEDIA_ROOT, 'recording.mp3')
@@ -75,12 +77,23 @@ def save_audio(request):
 #         return JsonResponse({'status': 'success', 'file_path': file_path})
 #     return JsonResponse({'status': 'failed'}, status=400)
 
+from core.core import AutoOk
+
 def karaoke(request):
+    auto_ok = AutoOk()
+    auto_ok.set_bgm('media/MR_file.wav')
+    auto_ok.get_waveform('bgm')
+    # auto_ok = get_auto_ok_instance(request)
+    # auto_ok.set_bgm('media/MR_file.wav')
+    # auto_ok.get_waveform('bgm')
+    # save_auto_ok_instance(request, auto_ok)
     if request.method == 'POST':
         # 업로드된 파일을 받아옵니다.
         # file_path = os.path.join(settings.MEDIA_ROOT, 'recording.mp3')
         # audio = AudioSegment.from_mp3(file_path)
         file_path = os.path.join(settings.MEDIA_ROOT, 'recording.wav')
+        # audio = AudioSegment.from_file(file_path)
+        # audio.export(file_path, format='wav')
         # if os.path.exists(output_path):
         #     os.remove(output_path)
         # audio.export(output_path, format='wav')
