@@ -219,7 +219,7 @@ class AutoOk:
         mp3_path = os.path.join(settings.MEDIA_ROOT, 'pitch_shifted.mp3')
         sf.write(mp3_path, np.array(self.list_shifted_vocal), sr)
 
-        audio = denoiser.load(mp3_path)
+        audio = denoiser.read_wav(mp3_path)
         audio = denoiser.filter(audio)
         denoiser.write_wav(mp3_path, audio)
 
