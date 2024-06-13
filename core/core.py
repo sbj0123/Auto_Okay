@@ -214,7 +214,7 @@ class AutoOk:
             self.list_shifted_vocal.extend(temp)
 
         # MP3 파일로 저장할 경로
-        mp3_path = os.path.join(settings.MEDIA_ROOT, 'pitch_shifted.mp3')
+        mp3_path = os.path.join(settings.MEDIA_ROOT, 'pitch_shifted.wav')
         sf.write(mp3_path, np.array(self.list_shifted_vocal), sr)
 
         audio = denoiser.read_wav(mp3_path)
