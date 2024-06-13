@@ -23,6 +23,7 @@ import soundfile as sf
 import subprocess
 from rnnoise_wrapper import RNNoise
 import os
+from pydub import AudioSegment
 
 def nearnest(value, dict_in):
   near = 0
@@ -98,9 +99,6 @@ class AutoOk:
 
         self.list_shifted_vocal = []
 
-    def to_dict(self):
-        return self.__dict__
-
     def set_bgm(self,url):
         self.url_bgm = url
         return True
@@ -130,7 +128,7 @@ class AutoOk:
         width_per_second = 1  # 초당 가로 길이 (inches)
         fig_width = width_per_second * duration
 
-        plt.figure(figsize=(fig_width, fixed_height))
+        plt.figure(figsize=(fig_width, fixed_height), frameon=False)
         librosa.display.waveshow(y, sr=sr)
         plt.axis("off")
         plt.xlim(0, duration)
@@ -232,9 +230,19 @@ class AutoOk:
         self.snd
         return True
 
-    # def final_song(self):
-    #     snd = parselmouth.Sound(self.url_bgm)
-    #     snd = snd[:len(self.list_shifted_vocal)]
+    def final_song(self):
+        # 첫 음원 불러오기
+        y, sr = librosa.load(self.url_bgm, sr=None)
+        sf.write("temp/BGM.wav", y, sr)
+        _, sr = librosa.load(self.url_vocal, sr=None)
+        sf.write("temp/VOCAL.wav", self.list_shifted_vocal, sr)
+
+        combined = AudioSegment.from_file("temp/VOCAL.wav")
+        new_audio = AudioSegment.from_file("temp/BGM.wav")
+        combined = combined.overlay(new_audio)
+
+        # 합쳐진 음원 다운로드
+        combined.export("temp/FINAL_SONG.wav", format="wav")
 
     def nearnest(self, value, dict_in):
         near = 0
