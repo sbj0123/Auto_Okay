@@ -5,10 +5,29 @@ from django.conf import settings
 from django.shortcuts import render
 import numpy as np
 import audioread
+from core.core import get_auto_ok_instance, save_auto_ok_instance, AutoOk
+from django.conf import settings
 
 # Create your views here.
 
 def check(request):
+    auto_ok = AutoOk()
+    auto_ok.set_bgm('media/MR_file.wav')
+    auto_ok.get_waveform('bgm')
+    auto_ok.set_vocal('media/recording.wav')
+    auto_ok.analyze()
+    auto_ok.get_shifted_wav()
+    auto_ok.get_waveform('vocal')
+    auto_ok.get_waveform('pitch')
+
+    # auto_ok = get_auto_ok_instance(request)
+    # auto_ok.set_vocal('media/recording.wav')
+    # auto_ok.get_waveform('vocal')
+    # auto_ok.get_waveform('pitch')
+    # auto_ok.analyze()
+    # shift = auto_ok.get_shifted_wav()
+    # save_auto_ok_instance(request, auto_ok)
+
     # if request.method == 'GET':
     #     # 업로드된 파일을 받아옵니다.
     #     file_path = os.path.join(settings.MEDIA_ROOT, 'recording.wav')

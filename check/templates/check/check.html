@@ -168,18 +168,18 @@
 
 
         #OriginalContainer {
-            background-image: url({% get_media_prefix %}controls.png); /* 피치 시프트 음원의 시각화 이미지 */
+            background-image: url({% get_media_prefix %}MR_file.wavvocal_image.png); /* 피치 시프트 음원의 시각화 이미지 */
             background-size: cover;
             background-position: center;
         }
 
         #ShiftedContainer {
-            background-image: url({% get_media_prefix %}controls.png); /* 원본 + 피치 시프트 음원의 시각화 이미지 */
+            background-image: url({% get_media_prefix %}MR_file.wavpitch_image.png); /* 원본 + 피치 시프트 음원의 시각화 이미지 */
             background-size: cover;
             background-position: center;
         }
     </style>
-
+<div class="landing-hero3">
     <div class="container">
         <div class="audio-container">
             <h2>Original Voice</h2>
@@ -187,9 +187,9 @@
                 <div id="redLineShift" class="red-line"></div>
                 <span class="playback-time" id="pitchShiftTime">00:00</span>
             </div>
-            <audio id="OriginalAudio" src="/media/MR_file.wav"></audio>
+            <audio id="OriginalAudio" src="/media/recording.wav"></audio>
             <div class="button-container">
-                <button onclick="togglePlay('OriginalAudio', 'OriginalContainer')">Toggle Original</button>
+                <button onclick="togglePlay('OriginalAudio', 'OriginalContainer')">재생/중지</button>
             </div>
         </div>
         <div class="audio-container">
@@ -198,14 +198,15 @@
                 <div id="redLineOriginal" class="red-line"></div>
                 <span class="playback-time" id="originalShiftTime">00:00</span>
             </div>
-            <audio id="ShiftedAudio" src="/media/MR_file.wav"></audio>
+            <audio id="ShiftedAudio" src="/media/pitch_shifted.wav"></audio>
             <div class="button-container">
-                <button onclick="togglePlay('ShiftedAudio', 'ShiftedContainer')">Toggle Shifted
+                <button onclick="togglePlay('ShiftedAudio', 'ShiftedContainer')">재생/중지
                 </button>
             </div>
             <a href="{% url 'download'%}" class="btn btn-clean">다음 페이지</a>
         </div>
     </div>
+</div>
 
     <script>
         // Script for handling red line, audio seek, and play/pause

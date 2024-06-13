@@ -52,18 +52,18 @@
 
 
         #pitchShiftContainer {
-            background-image: url({% get_media_prefix %}controls.png); /* 피치 시프트 음원의 시각화 이미지 */
+            background-image: url({% get_media_prefix %}MR_file.wavpitch_image.png); /* 피치 시프트 음원의 시각화 이미지 */
             background-size: cover;
             background-position: center;
         }
 
         #originalShiftContainer {
-            background-image: url({% get_media_prefix %}controls.png); /* 원본 + 피치 시프트 음원의 시각화 이미지 */
+            background-image: url({% get_media_prefix %}MR_file.wavpitch_bgm_image.png); /* 원본 + 피치 시프트 음원의 시각화 이미지 */
             background-size: cover;
             background-position: center;
         }
     </style>
-
+<div class="landing-hero1">
     <div class="container">
         <div class="audio-container">
             <h2>Pitch Shift Voice</h2>
@@ -71,10 +71,12 @@
                 <div id="redLineShift" class="red-line"></div>
                 <span class="playback-time" id="pitchShiftTime">00:00</span>
             </div>
-            <audio id="pitchShiftAudio" src="/media/노래방에서-mr.mp3"></audio>
+            <audio id="pitchShiftAudio" src='/media/pitch_shifted.wav'></audio>
             <div class="button-container">
-                <button onclick="togglePlay('pitchShiftAudio', 'pitchShiftContainer')">Play/Pause Pitch Shift</button>
-                <button onclick="downloadFile('노래방에서-mr.mp3')">Download Pitch Shift</button>
+                <button onclick="togglePlay('pitchShiftAudio', 'pitchShiftContainer')">재생/중지</button>
+                <a href="/media/pitch_shifted.wav" download="Pitch_Shifted.wav">
+                    <button>다운로드</button>
+                </a>
             </div>
         </div>
         <div class="audio-container">
@@ -83,14 +85,17 @@
                 <div id="redLineOriginal" class="red-line"></div>
                 <span class="playback-time" id="originalShiftTime">00:00</span>
             </div>
-            <audio id="originalShiftAudio" src="/media/노래방에서-mr.mp3"></audio>
+            <audio id="originalShiftAudio" src="/media/FINAL_SONG.mp3"></audio>
             <div class="button-container">
-                <button onclick="togglePlay('originalShiftAudio', 'originalShiftContainer')">Play/Pause MR + Pitch Shift
+                <button onclick="togglePlay('originalShiftAudio', 'originalShiftContainer')">재생/중지
                 </button>
-                <button onclick="downloadFile('노래방에서-mr.mp3')">Download MR + Pitch Shift</button>
+                <a href="/media/FINAL_SONG.mp3" download="노래방에서-mr.mp3">
+                    <button>다운로드</button>
+                </a>
             </div>
         </div>
     </div>
+</div>
 
     <script>
         // Script for handling red line, audio seek, and play/pause

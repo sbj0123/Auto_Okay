@@ -3,7 +3,7 @@
 
 
 {% block content %}
-    <div class="frame">
+    <div class="landing-hero1">
         <form style="height: 70vh;align-content: center; text-align: center;
             " method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -15,53 +15,63 @@
                     <input id="upload-btn1" style="display: none" type="file" name="audio_file1" required=""
                            onchange="displayFileName(this, 'label1')">
                     <img id="upload-icon" src="http://100dayscss.com/codepen/upload.svg" class="upload-icon"/>
-                    <label id="label1" style="display: flex; font-size: 16px;font-weight: 300;color:#666; justify-content: center;" for="upload-btn1">MR
+                    <label id="label1"
+                           style="display: flex; font-size: 16px;font-weight: 300;color:#666; justify-content: center;"
+                           for="upload-btn1">MR
                         파일: </label>
                 </div>
             </div>
-            <a href="{% url 'karaoke' %}" class="btn btn-clean" type="submit">시작하기</a>
+            <div>
+                <button class="btn btn-clean" type="submit">시작하기</button>
+            </div>
         </form>
     </div>
     <script>
-        function displayFileName(input, labelId) {
-            var label = document.getElementById(labelId); // 레이블 선택
-            var fileName = input.files[0].name; // 선택된 파일의 이름 가져오기
-            var displayedFileName1 = (fileName.length > 5) ? fileName.substring(0, 5) + '...' : fileName;
-            var displayedFileName = label.textContent + displayedFileName1// 파일 이름 조작
-            label.textContent = displayedFileName; // 레이블에 파일 이름 설정
-        }
 
-        document.getElementById('upload-icon').addEventListener('click', function () {
-            document.getElementById('upload-btn1').click();
-        });
+
+function displayFileName(input, labelId) {
+    var label = document.getElementById(labelId); // 레이블 선택
+    if (input.files.length > 0) {
+        var fileName = input.files[0].name; // 선택된 파일의 이름 가져오기
+        var displayedFileName = (fileName.length > 10) ? fileName.substring(0, 10) + '...' : fileName;
+        label.textContent = displayedFileName; // 레이블에 새로운 파일 이름 설정
+    } else {
+        label.textContent = "MR 파일: "; // 파일이 선택되지 않았다면 초기 텍스트로 설정
+    }
+}
+
+document.getElementById('upload-icon').addEventListener('click', function () {
+    document.getElementById('upload-btn1').click();
+});
+
     </script>
 
-{#<body>#}
-{##}
-{#    <!-- 오디오 엘리먼트 -->#}
-{#    <audio controls></audio>#}
-{##}
-{#</body>#}
-{##}
-{#<script>#}
-{#    // audio 엘리먼트 취득#}
-{#    const $audio = document.querySelector("audio");#}
-{##}
-{#    // 마이크 MediaStream 취득(audio를 true로 설정)#}
-{#    navigator.mediaDevices.getUserMedia({audio: true})#}
-{#    .then((mediaStream)=>{#}
-{#        // Promise이므로 then으로 받아서 사용(async/await를 사용해도 된다.)#}
-{##}
-{#        // 마이크에서 입력받은 MediaStream으로 오디오 재생#}
-{#        $audio.srcObject = mediaStream;#}
-{#        $audio.onloadedmetadata = (event)=>{#}
-{#            $audio.play();#}
-{#        }#}
-{#    })#}
-{#    .catch((err)=>{#}
-{#        console.error(`에러 발생: ${err}`);#}
-{#    });#}
-{#</script>#}
+    {#<body>#}
+    {##}
+    {#    <!-- 오디오 엘리먼트 -->#}
+    {#    <audio controls></audio>#}
+    {##}
+    {#</body>#}
+    {##}
+    {#<script>#}
+    {#    // audio 엘리먼트 취득#}
+    {#    const $audio = document.querySelector("audio");#}
+    {##}
+    {#    // 마이크 MediaStream 취득(audio를 true로 설정)#}
+    {#    navigator.mediaDevices.getUserMedia({audio: true})#}
+    {#    .then((mediaStream)=>{#}
+    {#        // Promise이므로 then으로 받아서 사용(async/await를 사용해도 된다.)#}
+    {##}
+    {#        // 마이크에서 입력받은 MediaStream으로 오디오 재생#}
+    {#        $audio.srcObject = mediaStream;#}
+    {#        $audio.onloadedmetadata = (event)=>{#}
+    {#            $audio.play();#}
+    {#        }#}
+    {#    })#}
+    {#    .catch((err)=>{#}
+    {#        console.error(`에러 발생: ${err}`);#}
+    {#    });#}
+    {#</script>#}
 
 
 {% endblock %}

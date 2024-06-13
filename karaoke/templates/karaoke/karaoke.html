@@ -1,3 +1,269 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+    <style>
+        .audio-container {
+            width: 80%;
+            margin: 20px auto; /* 중앙 정렬 및 위 아래 마진 */
+            background: #ffffff; /* 배경색 추가 */
+            padding: 20px; /* 내부 패딩 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+            border-radius: 10px; /* 경계선 둥글게 */
+            text-align: center; /* 텍스트 중앙 정렬 */
+        }
+
+        .frequency-container {
+            position: relative;
+            height: 200px;
+            border: 2px solid black; /* 테두리 추가 */
+            overflow: hidden; /* 컨테이너 밖의 내용을 숨김 */
+        }
+
+        .red-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: red;
+        }
+
+        .button-container {
+            text-align: center; /* 버튼을 가운데 정렬 */
+            margin-top: 10px; /* 버튼 위 간격 */
+        }
+
+        .playback-time {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 2px 5px;
+            font-size: 12px;
+        }
+
+        #scrollContainer {
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background-image: url("{% get_media_prefix %}MR_file.wavbgm_image.png"); /* 배경 이미지 추가 */
+            background-size: cover; /* 이미지 크기 조정 */
+        }
+
+        #frequencyLine {
+            position: absolute;
+            height: 100%;
+            width: 2px;
+            background-color: red;
+            left: 0%;
+            z-index: 10;
+            transition: left 0s linear;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #statusMessage {
+            color: #333;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        h1 {
+            font-size: 30px; /* 크기 조정 */
+            color: #333; /* 색상 조정 */
+            margin-top: 40px; /* 위 여백 조정 */
+            margin-bottom: 40px; /* 마진 조정 */
+            text-align: center;
+        }
+    </style>
+    <div class="landing-hero2">
+        <div class="audio-container">
+            <h2 style>Record Your Voice</h2>
+            <div id="scrollContainer" class="frequency-container">
+                <div id="frequencyLine" class="red-line"></div>
+            </div>
+
+            <div id="statusMessage" class="status-container">Ready to record...</div>
+            <div id="recordingTime" class="time-display">Recording Time: 00:00</div>
+        </div>
+        <div class="button-container">
+            <button class="btn btn-clean" id="startRecording" onclick="startRecording()">Start Recording</button>
+            <button type="button" class="btn btn-clean" id="finishRecording" onclick="finishRecording()">Finish
+                Recording
+            </button>
+            <form id="recordingForm" method="post" enctype="multipart/form-data" action="{% url 'karaoke' %}">
+                {% csrf_token %}
+                <input type="hidden" name="audioFile" id="audioFile">
+            </form>
+            <audio style="visibility: hidden" controls></audio>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wav-encoder/1.0.3/wav-encoder.min.js"></script>
+
+    <script>
+        let frequencyLine = document.getElementById('frequencyLine');
+        let statusMessage = document.getElementById('statusMessage');
+        let recordingTime = document.getElementById('recordingTime');
+        let mediaRecorder;
+        let audioChunks = [];
+        let song = new Audio('/media/MR_file.wav');
+        let audioContext, mediaStreamSource, destination;
+        let sampleRate = 44100;  // sample rate를 44100Hz로 설정
+        let recordingStartTime;
+        let recordingInterval;
+
+        async function setupRecorder() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    }
+                });
+
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                mediaStreamSource = audioContext.createMediaStreamSource(stream);
+
+                destination = audioContext.createMediaStreamDestination();
+                mediaStreamSource.connect(destination);
+
+                mediaRecorder = new MediaRecorder(destination.stream, {mimeType: 'audio/webm'});
+
+                mediaRecorder.ondataavailable = function (event) {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, {type: 'audio/webm'});
+                    const arrayBuffer = await audioBlob.arrayBuffer();
+                    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                    const wavData = await encodeWAV(audioBuffer);
+                    const wavBlob = new Blob([wavData], {type: 'audio/wav'});
+
+                    const formData = new FormData();
+                    formData.append('audioFile', wavBlob, 'recording.wav');
+                    await sendAudioToServer(formData);
+                    audioChunks = [];
+                    statusMessage.textContent = "저장 완료";
+                    document.getElementById('recordingForm').submit(); // 녹음 저장 후 폼 제출
+                };
+            } catch (err) {
+                console.error('Error accessing media devices.', err);
+            }
+        }
+
+        function encodeWAV(audioBuffer) {
+            const numOfChannels = audioBuffer.numberOfChannels;
+            const length = audioBuffer.length * numOfChannels * 2 + 44;
+            const buffer = new ArrayBuffer(length);
+            const view = new DataView(buffer);
+            const channels = [];
+
+            let sampleRate = audioBuffer.sampleRate;
+
+            // WAV 파일 헤더 작성
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 32 + audioBuffer.length * numOfChannels * 2, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numOfChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 4, true);
+            view.setUint16(32, numOfChannels * 2, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, audioBuffer.length * numOfChannels * 2, true);
+
+            // 채널 데이터 작성
+            for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+                channels.push(audioBuffer.getChannelData(i));
+            }
+
+            let offset = 44;
+            for (let i = 0; i < audioBuffer.length; i++) {
+                for (let channel = 0; channel < numOfChannels; channel++) {
+                    let sample = Math.max(-1, Math.min(1, channels[channel][i]));
+                    sample = (sample < 0 ? sample * 0x8000 : sample * 0x7FFF) | 0;
+                    view.setInt16(offset, sample, true);
+                    offset += 2;
+                }
+            }
+
+            return buffer;
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        async function sendAudioToServer(formData) {
+            try {
+                const response = await fetch('{% url 'save_audio' %}', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const data = await response.json();
+                console.log('Server response:', data);
+                statusMessage.textContent = "Upload completed. File path: " + data.file_path;
+            } catch (error) {
+                console.error('Upload failed:', error);
+                statusMessage.textContent = "Upload failed. Please try again.";
+            }
+        }
+
+        window.onload = function () {
+            setupRecorder();
+        };
+
+        function startRecording() {
+            if (mediaRecorder && mediaRecorder.state === "inactive") {
+                mediaRecorder.start();
+                statusMessage.textContent = "Recording in progress...";
+                song.play(); // MR_file.wav 파일 재생
+
+                // 빨간 선이 움직이도록 설정
+                frequencyLine.style.transition = `left ${song.duration}s linear`;
+                frequencyLine.style.left = '100%';
+
+                recordingStartTime = Date.now();
+                recordingInterval = setInterval(updateRecordingTime, 1000); // 매 초마다 시간 업데이트
+            }
+        }
+
+        function finishRecording() {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                song.pause();
+                song.currentTime = 0;
+                frequencyLine.style.transition = 'none';
+                frequencyLine.style.left = '0%';
+                statusMessage.textContent = "Recording finished. Saving...";
+                clearInterval(recordingInterval); // 녹음 시간 업데이트 중지
+            }
+        }
+
+        function updateRecordingTime() {
+            const elapsedTime = Math.floor((Date.now() - recordingStartTime) / 1000);
+            const minutes = String(Math.floor(elapsedTime / 60)).padStart(2, '0');
+            const seconds = String(elapsedTime % 60).padStart(2, '0');
+            recordingTime.textContent = `Recording Time: ${minutes}:${seconds}`;
+        }
+    </script>
+
+{% endblock %}
+
+
 {#{% extends 'index.html' %}#}
 {#{% load static %}#}
 {##}
@@ -9,8 +275,9 @@
 {#            height: 100%;#}
 {#            width: 2px;#}
 {#            background-color: red;#}
-{#            left: 1%;#}
+{#            left: 0%;#}
 {#            z-index: 10;#}
+{#            transition: left 0s linear;#}
 {#        }#}
 {##}
 {#        #scrollContainer {#}
@@ -20,12 +287,8 @@
 {#            height: 300px;#}
 {#            border: 1px solid #ccc;#}
 {#            margin: auto; /* 중앙 정렬 */#}
-{#        }#}
-{##}
-{#        #scrollImage {#}
-{#            position: absolute;#}
-{#            left: 0%;#}
-{#            width: 200%;#}
+{#            background-image: url("{% get_media_prefix %}controls.png"); /* 배경 이미지 추가 */#}
+{#            background-size: cover; /* 이미지 크기 조정 */#}
 {#        }#}
 {##}
 {#        button {#}
@@ -51,298 +314,245 @@
 {#            margin-top: 40px; /* 위 여백 조정 */#}
 {#            margin-bottom: 40px; /* 마진 조정 */#}
 {#        }#}
+{##}
+{#        .audio-container {#}
+{#            width: 100%; /* 적절한 너비 설정 */#}
+{#            margin: 20px 0; /* 위 아래 마진으로 컨테이너 간 간격 추가 */#}
+{#            background: #f8f8f8; /* 배경색 추가 */#}
+{#            padding: 20px; /* 내부 패딩 */#}
+{#            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 효과 */#}
+{#            border-radius: 10px; /* 경계선 둥글게 */#}
+{#        }#}
+{##}
+{#        .frequency-container {#}
+{#            position: relative;#}
+{#            height: 200px;#}
+{#            border: 2px solid black; /* 테두리 추가 */#}
+{#            overflow: hidden; /* 컨테이너 밖의 내용을 숨김 */#}
+{#        }#}
+{##}
+{#        .red-line {#}
+{#            position: absolute;#}
+{#            top: 0;#}
+{#            bottom: 0;#}
+{#            width: 2px;#}
+{#            background-color: red;#}
+{#        }#}
+{##}
+{#        .playback-time {#}
+{#            position: absolute;#}
+{#            bottom: 5px;#}
+{#            right: 5px;#}
+{#            background: rgba(255, 255, 255, 0.7);#}
+{#            padding: 2px 5px;#}
+{#            font-size: 12px;#}
+{#        }#}
 {#    </style>#}
 {##}
 {#    <div class="text-center" style="margin-top: 20px;">#}
 {#        <h1>&lt;Record Your Voice&gt;</h1>#}
 {#    </div>#}
 {##}
-{#    <div id="scrollContainer">#}
-{#        <div id="frequencyLine"></div>#}
-{#        <img id="scrollImage" src={% get_media_prefix %}controls.png alt="Frequency Visualization">#}
+{##}
+{#    <div class="container">#}
+{#        <div class="audio-container">#}
+{#            <h2>Original Voice</h2>#}
+{#            <div id="OriginalContainer" class="frequency-container">#}
+{#                <div id="redLineShift" class="red-line"></div>#}
+{#                <span class="playback-time" id="pitchShiftTime">00:00</span>#}
+{#            </div>#}
+{#            <audio id="audio1" src="/media/MR_file.wav"></audio>#}
+{#        </div>#}
 {#    </div>#}
-{#    <div class="button-container">#}
-{#        <button class="btn btn-clean" id="startRecording" onclick="startRecording()">Start Recording</button>#}
-{#        <button class="btn btn-clean" id="stopRecording" onclick="stopRecording()">Stop Recording</button>#}
-{#        <form id="recordingForm" method="post" enctype="multipart/form-data" action="{% url 'karaoke' %}">#}
-{#            {% csrf_token %}#}
-{#            <input type="hidden" name="audioFile" id="audioFile">#}
-{#            <button type="submit" class="btn btn-clean" id="finishRecording" onclick="finishRecording()">Finish#}
-{#                Recording#}
+{#        <div id="scrollContainer">#}
+{#            <div id="frequencyLine"></div>#}
+{#        </div>#}
+{#        <div class="button-container" style="display: flex; justify-content: center; align-items: center">#}
+{#            <button class="btn btn-clean" id="startRecording" style="display: inline-block" onclick="startRecording()">#}
+{#                Start Recording#}
 {#            </button>#}
-{#        </form>#}
-{#    </div>#}
-{#    <div id="statusMessage">Ready to record...</div>#}
+{#        <button class="btn btn-clean" id="stopRecording" onclick="stopRecording()">Stop Recording</button>#}
+{#            <form id="recordingForm" style="display: inline-block" method="post" enctype="multipart/form-data"#}
+{#                  action="{% url 'karaoke' %}">#}
+{#                {% csrf_token %}#}
+{#                <input type="hidden" name="audioFile" id="audioFile">#}
+{#                <button type="submit" class="btn btn-clean" id="finishRecording" onclick="finishRecording()">Finish#}
+{#                    Recording#}
+{#                </button>#}
+{#            </form>#}
+{#        </div>#}
+{#        <audio style="visibility: hidden" controls></audio>#}
+{#        <div id="statusMessage">Ready to record...</div>#}
 {##}
-{#    <script>#}
-{#        let scrollImage = document.getElementById('scrollImage');#}
-{#        let statusMessage = document.getElementById('statusMessage');#}
-{#        let intervalId;#}
-{#        let maxLeft = -200;#}
+{#        <script src="https://cdnjs.cloudflare.com/ajax/libs/wav-encoder/1.0.3/wav-encoder.min.js"></script>#}
 {##}
-{#        let mediaRecorder;#}
-{#        let audioChunks = [];#}
-{#        let song = new Audio('/media/MR_file.wav');#}
+{#        <script>#}
+{#            let frequencyLine = document.getElementById('frequencyLine');#}
+{#            let statusMessage = document.getElementById('statusMessage');#}
+{#            let mediaRecorder;#}
+{#            let audioChunks = [];#}
+{#            let song = new Audio('/media/MR_file.wav');#}
+{#            let audioContext, mediaStreamSource, destination;#}
+{#            let sampleRate = 44100;  // sample rate를 44100Hz로 설정#}
+{#            const container = document.getElementById('OriginalContainer');#}
+{#            const timeDisplay = document.getElementById('pitchShiftTime')#}
+{#            const redLine = document.getElementById('red-line')#}
 {##}
-{#        async function setupRecorder() {#}
-{#            const stream = await navigator.mediaDevices.getUserMedia({audio: true});#}
-{#            mediaRecorder = new MediaRecorder(stream);#}
-{##}
-{#            mediaRecorder.ondataavailable = function (event) {#}
-{#                audioChunks.push(event.data);#}
-{#            };#}
-{##}
-{#            mediaRecorder.onstop = async () => {#}
-{#                const audioBlob = new Blob(audioChunks, {type: 'audio/wav'});#}
-{#                const formData = new FormData();#}
-{#                formData.append('audioFile', audioBlob, 'recording.wav');#}
-{#                await sendAudioToServer(formData);#}
-{#                audioChunks = [];#}
-{#            };#}
-{#        }#}
-{##}
-{#        async function sendAudioToServer(formData) {#}
-{#            try {#}
-{#                const response = await fetch('save_audio/', {#}
-{#                    method: 'POST',#}
-{#                    body: formData,#}
-{#                    mode: "cors"#}
-{#                });#}
-{#                const data = await response.json();#}
-{#                console.log('Server response:', data);#}
-{#                statusMessage.textContent = "Upload completed. File path: " + data.file_path;#}
-{#            } catch (error) {#}
-{#                console.error('Upload failed:', error);#}
-{#                statusMessage.textContent = "Upload failed. Please try again.";#}
-{#            }#}
-{#        }#}
-{##}
-{#        window.onload = function () {#}
-{#            scrollImage.style.left = '0%';#}
-{#            setupRecorder();#}
-{#        };#}
-{##}
-{#        function startRecording() {#}
-{#            if(mediaRecorder && mediaRecorder.state === 'inactivate'){#}
-{#            mediaRecorder.start();#}
-{#            statusMessage.textContent = "Recording in progress...";#}
-{#            song.play();#}
-{#            }#}
-{#            scrollImage.style.transition = 'none';#}
-{#            const moveImage = () => {#}
-{#                if (parseInt(scrollImage.style.left) > maxLeft) {#}
-{#                    scrollImage.style.left = (parseInt(scrollImage.style.left) - 1) + '%';#}
-{#                } else {#}
-{#                    clearInterval(intervalId);#}
-{#                    statusMessage.textContent = "Recording stopped. End of track.";#}
+{#            function updateRedLine(percent) {#}
+{#                redLine.style.left = percent + '%';#}
+{#                if (song) {#}
+{#                    const minutes = Math.floor(song.currentTime / 60).toString().padStart(2, '0');#}
+{#                    const seconds = Math.floor(song.currentTime % 60).toString().padStart(2, '0');#}
+{#                    timeDisplay.textContent = `${minutes}:${seconds}`;#}
 {#                }#}
+{#            }#}
+{##}
+{#            async function setupRecorder() {#}
+{#                try {#}
+{#                    const stream = await navigator.mediaDevices.getUserMedia({#}
+{#                        audio: {#}
+{#                            echoCancellation: false,#}
+{#                            noiseSuppression: false,#}
+{#                            autoGainControl: false#}
+{#                        }#}
+{#                    });#}
+{##}
+{#                    audioContext = new (window.AudioContext || window.webkitAudioContext)();#}
+{#                    mediaStreamSource = audioContext.createMediaStreamSource(stream);#}
+{##}
+{#                    destination = audioContext.createMediaStreamDestination();#}
+{#                    mediaStreamSource.connect(destination);#}
+{##}
+{#                    mediaRecorder = new MediaRecorder(destination.stream, {mimeType: 'audio/webm'});#}
+{##}
+{#                    mediaRecorder.ondataavailable = function (event) {#}
+{#                        audioChunks.push(event.data);#}
+{#                    };#}
+{##}
+{#                    mediaRecorder.onstop = async () => {#}
+{#                        const audioBlob = new Blob(audioChunks, {type: 'audio/webm'});#}
+{#const arrayBuffer = await audioBlob.arrayBuffer();#}
+{#const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);#}
+{#const wavData = await encodeWAV(audioBuffer);#}
+{#const wavBlob = new Blob([wavData], { type: 'audio/wav' });#}
+{##}
+{#                        const formData = new FormData();#}
+{#                        formData.append('audioFile', audioBlob, 'recording.wav');#}
+{#                        await sendAudioToServer(formData);#}
+{#                        audioChunks = [];#}
+{#                        statusMessage.textContent = "저장 완료";#}
+{#                    };#}
+{#                } catch (err) {#}
+{#                    console.error('Error accessing media devices.', err);#}
+{#                }#}
+{#            }#}
+{##}
+{#            function encodeWAV(audioBuffer) {#}
+{#                const numOfChannels = audioBuffer.numberOfChannels;#}
+{#                const length = audioBuffer.length * numOfChannels * 2 + 44;#}
+{#                const buffer = new ArrayBuffer(length);#}
+{#                const view = new DataView(buffer);#}
+{#                const channels = [];#}
+{##}
+{#                let sampleRate = audioBuffer.sampleRate;#}
+{##}
+{#                // WAV 파일 헤더 작성#}
+{#                writeString(view, 0, 'RIFF');#}
+{#                view.setUint32(4, 32 + audioBuffer.length * numOfChannels * 2, true);#}
+{#                writeString(view, 8, 'WAVE');#}
+{#                writeString(view, 12, 'fmt ');#}
+{#                view.setUint32(16, 16, true);#}
+{#                view.setUint16(20, 1, true);#}
+{#                view.setUint16(22, numOfChannels, true);#}
+{#                view.setUint32(24, sampleRate, true);#}
+{#                view.setUint32(28, sampleRate * 4, true);#}
+{#                view.setUint16(32, numOfChannels * 2, true);#}
+{#                view.setUint16(34, 16, true);#}
+{#                writeString(view, 36, 'data');#}
+{#                view.setUint32(40, audioBuffer.length * numOfChannels * 2, true);#}
+{##}
+{#                // 채널 데이터 작성#}
+{#                for (let i = 0; i < audioBuffer.numberOfChannels; i++) {#}
+{#                    channels.push(audioBuffer.getChannelData(i));#}
+{#                }#}
+{##}
+{#                let offset = 44;#}
+{#                for (let i = 0; i < audioBuffer.length; i++) {#}
+{#                    for (let channel = 0; channel < numOfChannels; channel++) {#}
+{#                        let sample = Math.max(-1, Math.min(1, channels[channel][i]));#}
+{#                        sample = (sample < 0 ? sample * 0x8000 : sample * 0x7FFF) | 0;#}
+{#                        view.setInt16(offset, sample, true);#}
+{#                        offset += 2;#}
+{#                    }#}
+{#                }#}
+{##}
+{#                return buffer;#}
+{#            }#}
+{##}
+{#            function writeString(view, offset, string) {#}
+{#                for (let i = 0; i < string.length; i++) {#}
+{#                    view.setUint8(offset + i, string.charCodeAt(i));#}
+{#                }#}
+{#            }#}
+{##}
+{#            async function sendAudioToServer(formData) {#}
+{#                try {#}
+{#                    const response = await fetch('{% url 'save_audio' %}', {#}
+{#                        method: 'POST',#}
+{#                        body: formData,#}
+{#                    });#}
+{#                    const data = await response.json();#}
+{#                    console.log('Server response:', data);#}
+{#                    statusMessage.textContent = "Upload completed. File path: " + data.file_path;#}
+{#                } catch (error) {#}
+{#                    console.error('Upload failed:', error);#}
+{#                    statusMessage.textContent = "Upload failed. Please try again.";#}
+{#                }#}
+{#            }#}
+{##}
+{#            window.onload = function () {#}
+{#                setupRecorder();#}
 {#            };#}
-{#            intervalId = setInterval(moveImage, 50);#}
-{#        }#}
 {##}
-{#        function stopRecording() {#}
-{#            if (mediaRecorder && mediaRecorder.state === "recording") {#}
-{#                mediaRecorder.stop();#}
-{#                statusMessage.textContent = "Recording paused. Press start to resume.";#}
+{#            function startRecording() {#}
+{#                if (mediaRecorder && mediaRecorder.state === "inactive") {#}
+{#                    mediaRecorder.start();#}
+{#                    statusMessage.textContent = "Recording in progress...";#}
+{#                    song.play(); // MR_file.wav 파일 재생#}
+{##}
+{##}
+{#                    song.addEventListener('timeupdate', () => {#}
+{#                        const percent = (song.currentTime / song.duration) * 100;#}
+{#                        updateRedLine(percent);#}
+{#                    });#}
+{##}
+{#                    // 빨간 선이 움직이도록 설정#}
+{#frequencyLine.style.transition = `left ${song.duration}s linear`;#}
+{#frequencyLine.style.left = '100%';#}
+{#                }#}
 {#            }#}
-{#            clearInterval(intervalId);#}
-{#            song.pause();#}
-{#        }#}
 {##}
-{#        function finishRecording() {#}
-{#            if (mediaRecorder && mediaRecorder.state === "recording") {#}
-{#                mediaRecorder.stop();#}
-{#                statusMessage.textContent = "Recording finished. Ready to play.";#}
+{#function stopRecording() {#}
+{#    if (mediaRecorder && mediaRecorder.state === "recording") {#}
+{#        mediaRecorder.stop();#}
+{#        statusMessage.textContent = "저장 완료";#}
+{#    }#}
+{#    song.pause();#}
+{#    frequencyLine.style.transition = 'none';#}
+{#    frequencyLine.style.left = '0%';#}
+{# }#}
+{##}
+{#            function finishRecording() {#}
+{#                if (mediaRecorder && mediaRecorder.state === "recording") {#}
+{#                    mediaRecorder.stop();#}
+{#                    statusMessage.textContent = "Recording finished. Ready to play.";#}
+{#                }#}
+{#                song.currentTime = 0;#}
+{#                song.pause();#}
+{#                frequencyLine.style.transition = 'none';#}
+{#                frequencyLine.style.left = '0%';#}
+{#                document.getElementById('recordingForm').submit();#}
 {#            }#}
-{#            clearInterval(intervalId);#}
-{#            scrollImage.style.transition = 'left 0.5s ease-out';#}
-{#            scrollImage.style.left = '0%';#}
-{#            song.currentTime = 0;#}
-{#            song.pause();#}
-{#            document.getElementById('recordingForm').submit();#}
-{#window.location.href = "{% url 'check' %}";#}
-{##}
-{#        }#}
-{#    </script>#}
+{#        </script>#}
 {##}
 {#{% endblock %}#}
-
-{% extends 'index.html' %}
-{% load static %}
-
-{% block content %}
-
-    <style>
-        #frequencyLine {
-            position: absolute;
-            height: 100%;
-            width: 2px;
-            background-color: red;
-            left: 1%;
-            z-index: 10;
-        }
-
-        #scrollContainer {
-            overflow: hidden;
-            position: relative;
-            width: 80%;
-            height: 300px;
-            border: 1px solid #ccc;
-            margin: auto; /* 중앙 정렬 */
-        }
-
-        #scrollImage {
-            position: absolute;
-            left: 0%;
-            width: 200%;
-        }
-
-        button {
-            padding: 10px 20px;
-            margin: 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .button-container {
-            text-align: center; /* 버튼을 가운데 정렬 */
-        }
-
-        #statusMessage {
-            color: #333;
-            font-size: 18px;
-            margin-top: 20px;
-        }
-
-        h1 {
-            font-size: 30px; /* 크기 조정 */
-            color: #333; /* 색상 조정 */
-            margin-top: 40px; /* 위 여백 조정 */
-            margin-bottom: 40px; /* 마진 조정 */
-        }
-    </style>
-
-    <div class="text-center" style="margin-top: 20px;">
-        <h1>&lt;Record Your Voice&gt;</h1>
-    </div>
-
-    <div id="scrollContainer">
-        <div id="frequencyLine"></div>
-        <img id="scrollImage" src={% get_media_prefix %}controls.png alt="Frequency Visualization">
-    </div>
-    <div class="button-container">
-        <button class="btn btn-clean" id="startRecording" onclick="startRecording()">Start Recording</button>
-        <button class="btn btn-clean" id="stopRecording" onclick="stopRecording()">Stop Recording</button>
-        <form id="recordingForm" method="post" enctype="multipart/form-data" action="{% url 'karaoke' %}">
-            {% csrf_token %}
-            <input type="hidden" name="audioFile" id="audioFile">
-            <button type="submit" class="btn btn-clean" id="finishRecording" onclick="finishRecording()">Finish
-                Recording
-            </button>
-        </form>
-        <audio controls></audio>
-    </div>
-    <div id="statusMessage">Ready to record...</div>
-
-    <script>
-        let scrollImage = document.getElementById('scrollImage');
-        let statusMessage = document.getElementById('statusMessage');
-        let intervalId;
-        let maxLeft = -200;
-
-        let mediaRecorder;
-        let audioChunks = [];
-        let song = new Audio('/media/MR_file.wav');
-        const $audio = document.querySelector("audio");
-
-
-        function setupRecorder() {
-            const stream = navigator.mediaDevices.getUserMedia({audio: true})
-                .then((mediaStream) => {
-                    // Promise이므로 then으로 받아서 사용(async/await를 사용해도 된다.)
-
-                    // 마이크에서 입력받은 MediaStream으로 오디오 재생
-                    $audio.srcObject = mediaStream;
-                    $audio.onloadedmetadata = (event) => {
-                        $audio.play();
-                    }
-                 })
-            mediaRecorder = new MediaRecorder(stream);
-
-            mediaRecorder.ondataavailable = function (event) {
-                audioChunks.push(event.data);
-            };
-
-            mediaRecorder.onstop = async () => {
-                const audioBlob = new Blob(audioChunks, {type: 'audio/wav'});
-                const formData = new FormData();
-                formData.append('audioFile', audioBlob, 'recording.wav');
-                await sendAudioToServer(formData);
-                audioChunks = [];
-            };
-        }
-
-        async function sendAudioToServer(formData) {
-            try {
-                const response = await fetch('{% url 'save_audio' %}', {
-                    method: 'POST',
-                    body: formData,
-                });
-                const data = await response.json();
-                console.log('Server response:', data);
-                statusMessage.textContent = "Upload completed. File path: " + data.file_path;
-            } catch (error) {
-                console.error('Upload failed:', error);
-                statusMessage.textContent = "Upload failed. Please try again.";
-            }
-        }
-
-        window.onload = function () {
-            scrollImage.style.left = '0%';
-            setupRecorder();
-        };
-
-        function startRecording() {
-            if (mediaRecorder && mediaRecorder.state === "inactive") {
-                mediaRecorder.start();
-                statusMessage.textContent = "Recording in progress...";
-                song.play();
-            }
-            scrollImage.style.transition = 'none';
-            const moveImage = () => {
-                if (parseInt(scrollImage.style.left) > maxLeft) {
-                    scrollImage.style.left = (parseInt(scrollImage.style.left) - 1) + '%';
-                } else {
-                    clearInterval(intervalId);
-                    statusMessage.textContent = "Recording stopped. End of track.";
-                }
-            };
-            intervalId = setInterval(moveImage, 50);
-        }
-
-        function stopRecording() {
-            if (mediaRecorder && mediaRecorder.state === "recording") {
-                mediaRecorder.stop();
-                statusMessage.textContent = "Recording paused. Press start to resume.";
-            }
-            clearInterval(intervalId);
-            song.pause();
-        }
-
-        function finishRecording() {
-            if (mediaRecorder && mediaRecorder.state === "recording") {
-                mediaRecorder.stop();
-                statusMessage.textContent = "Recording finished. Ready to play.";
-            }
-            clearInterval(intervalId);
-            scrollImage.style.transition = 'left 0.5s ease-out';
-            scrollImage.style.left = '0%';
-            song.currentTime = 0;
-            song.pause();
-            document.getElementById('recordingForm').submit();
-            {#window.location.href = "{% url 'check' %}";#}
-
-        }
-    </script>
-
-{% endblock %}
