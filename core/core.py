@@ -143,7 +143,6 @@ class AutoOk:
 
         return True
 
-
     def analyze(self):
         snd = parselmouth.Sound(self.url_bgm)
         chords = autochord.recognize(self.url_bgm, lab_fn='chords.lab')
@@ -181,7 +180,6 @@ class AutoOk:
 
     def get_shifted_wav(self):
         denoiser = RNNoise()
-
         list_diff_by_section = []
         last_oct, last_key = 0, ''
         int_diff_sum = 0
