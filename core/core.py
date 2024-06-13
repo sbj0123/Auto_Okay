@@ -215,11 +215,15 @@ class AutoOk:
                 temp = librosa.effects.pitch_shift(y=temp, sr=sr, n_steps=d[2] / d[3] * 12)
             self.list_shifted_vocal.extend(temp)
 
-        self.list_shifted_vocal = denoiser.filter(self.list_shifted_vocal)
-
         # MP3 파일로 저장할 경로
         mp3_path = os.path.join(settings.MEDIA_ROOT, 'pitch_shifted.mp3')
         sf.write(mp3_path, np.array(self.list_shifted_vocal), sr)
+
+        audio = denoiser.load(mp3_path)
+        audio = denoiser.filter(audio)
+        denoiser.write_wav(mp3_path, audio)
+
+        
 
         return True
 
