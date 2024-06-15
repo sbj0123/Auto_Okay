@@ -141,7 +141,7 @@ class AutoOk:
 
 
     def analyze(self):
-        snd = parselmouth.Sound(self.url_bgm)
+        snd = parselmouth.Sound(self.url_vocal)
         chords = autochord.recognize(self.url_bgm, lab_fn='chords.lab')
         pitch = snd.to_pitch()
         pitch_values = pitch.selected_array['frequency']
