@@ -36,6 +36,8 @@ def nearnest(value, dict_in):
 
 
 class AutoOk:
+    def to_dict(self):
+        return self.__dict__
 
     def __init__(self, url_bgm=None, url_vocal=None, diff=None):
         self.url_bgm = url_bgm
