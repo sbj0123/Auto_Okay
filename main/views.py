@@ -14,9 +14,6 @@ def upload_file(request):
     #save_auto_ok_instance(request, auto_ok)
     if request.method == 'POST':
 
-        auto_ok = get_auto_ok_instance(request)
-        save_auto_ok_instance(request, auto_ok)
-
         form = MyModelForm(request.POST, request.FILES)
         request.FILES['audio_file1'].name = 'MR_file.wav'
         if os.path.exists(os.path.join(settings.MEDIA_ROOT, 'MR_file.wav')):
